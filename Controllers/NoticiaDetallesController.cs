@@ -29,16 +29,16 @@ namespace PLANETAVERDE_API.Controllers
 
         // GET: api/NoticiaDetalles/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<NoticiaDetalle>> GetNoticiaDetalle(string id)
+        public ActionResult<NoticiaDetalle> GetNoticiaDetalle(string id)
         {
-            var noticiaDetalle = await _context.NoticiaDetalle.FindAsync(id);
+            var noticiaDetalle =  _context.NoticiaDetalle.Include(x=>x.IdNoticiaHeaderNavigation).ToList().Find(x=>x.IdNoticiaHeader==id);
 
             if (noticiaDetalle == null)
             {
                 return NotFound();
             }
 
-            return noticiaDetalle;
+            return Ok(noticiaDetalle);
         }
 
         // PUT: api/NoticiaDetalles/5

@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace PLANETAVERDE_API
 {
@@ -25,6 +26,10 @@ namespace PLANETAVERDE_API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddMvc()
+    .AddNewtonsoftJson(
+        options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+    );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
