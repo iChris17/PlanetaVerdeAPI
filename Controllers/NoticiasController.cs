@@ -21,18 +21,18 @@ namespace PLANETAVERDE_API.Controllers
 
         // GET: api/Noticias
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Noticia>>> GetNoticia()
+        public ActionResult<IEnumerable<Noticia>> GetNoticia()
         {
-            return await _context.Noticia.ToListAsync();
+            return Ok(_context.Noticia.ToList().OrderByDescending(n=>n.FhRegistro));
         }
 
         // GET: api/Noticias/5
         [HttpGet("{id}")]
-        public ActionResult<IEnumerable<Noticia>> GetNoticia(string id)
+        public ActionResult<IEnumerable<Noticia>> GetNoticia(string id,int seccion=0)
         {
             if (id.Contains("recientes"))
             {
-                return Ok(_context.Noticia.ToList());
+                return seccion==0?Ok(_context.Noticia.ToList().OrderByDescending(n => n.FhRegistro)): Ok(_context.Noticia.ToList().OrderByDescending(n => n.FhRegistro).Take(seccion));
             }
 
             var categoria = _context.Categoria.ToList().Find(x => x.NbCategoriaHeader == id);
@@ -43,7 +43,7 @@ namespace PLANETAVERDE_API.Controllers
                 return NotFound();
             }
             idCategoria = categoria.IdCategoria;
-            return Ok(_context.Noticia.ToList().Where(n=>n.IdCategoria==idCategoria));
+            return seccion == 0 ? Ok(_context.Noticia.ToList().Where(n=>n.IdCategoria==idCategoria).OrderByDescending(n => n.FhRegistro)) : Ok(_context.Noticia.ToList().Where(n => n.IdCategoria == idCategoria).OrderByDescending(n => n.FhRegistro).Take(seccion));
         }
 
         // PUT: api/Noticias/5
