@@ -40,16 +40,16 @@ namespace PLANETAVERDE_API.Controllers
 
         // GET: api/Categorias/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Categoria>> GetCategoria(int id)
+        public  ActionResult<Categoria> GetCategoria(string id,int n)
         {
-            var categoria = await _context.Categoria.FindAsync(id);
+            var categoria = _context.Categoria.FromSqlRaw($"SP_GETCATEGORIA_BY_NBNOTICIA '{id}'");
 
             if (categoria == null)
             {
                 return NotFound();
             }
 
-            return categoria;
+            return Ok(categoria);
         }
 
         // PUT: api/Categorias/5

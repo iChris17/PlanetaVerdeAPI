@@ -30,20 +30,13 @@ namespace PLANETAVERDE_API.Controllers
         [HttpGet("{id}")]
         public ActionResult<IEnumerable<Noticia>> GetNoticia(string id,int seccion=0)
         {
-            if (id.Contains("recientes"))
-            {
-                return seccion==0?Ok(_context.Noticia.ToList().OrderByDescending(n => n.FhRegistro)): Ok(_context.Noticia.ToList().OrderByDescending(n => n.FhRegistro).Take(seccion));
-            }
-
             var categoria = _context.Categoria.ToList().Find(x => x.NbCategoriaHeader == id);
-            int idCategoria;
 
             if (categoria == null)
             {
                 return NotFound();
             }
-            idCategoria = categoria.IdCategoria;
-            return seccion == 0 ? Ok(_context.Noticia.ToList().Where(n=>n.IdCategoria==idCategoria).OrderByDescending(n => n.FhRegistro)) : Ok(_context.Noticia.ToList().Where(n => n.IdCategoria == idCategoria).OrderByDescending(n => n.FhRegistro).Take(seccion));
+            return Ok(_context.Noticia.FromSqlRaw($"SP_GETNOTICIA_BY_CATEGORIA '{id}','{seccion}'").ToList());
         }
 
         // PUT: api/Noticias/5
