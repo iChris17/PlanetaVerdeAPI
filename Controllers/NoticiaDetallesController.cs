@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using PLANETAVERDE_API.Models;
 
 namespace PLANETAVERDE_API.Controllers
@@ -22,23 +23,77 @@ namespace PLANETAVERDE_API.Controllers
 
         // GET: api/NoticiaDetalles
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<NoticiaDetalle>>> GetNoticiaDetalle()
+        public dynamic GetNoticiaDetalle()
         {
-            return await _context.NoticiaDetalle.ToListAsync();
+            dynamic jsonResponse = new JObject();
+            try
+            {
+                var noticiadetalle= _context.NoticiaDetalle.ToList();
+                JArray Jarray = new JArray();
+
+                for (int i = 0; i < noticiadetalle.Count; i++)
+                {
+                    Jarray.Add(JToken.FromObject(
+            new NoticiaDetalle
+            {
+                IdNoticiaHeader = noticiadetalle[i].IdNoticiaHeader,
+                TxNoticia = noticiadetalle[i].TxNoticia,
+                FhRegistro = noticiadetalle[i].FhRegistro,
+                UsRegistro = noticiadetalle[i].UsRegistro
+            }));
+                }
+                jsonResponse.code = 200;
+                jsonResponse.msj = "";
+                jsonResponse.data = Jarray;
+
+                return jsonResponse;
+            }
+            catch (Exception e)
+            {
+
+                jsonResponse.code = 500;
+                jsonResponse.data = null;
+                jsonResponse.msj = e.Message;
+                return jsonResponse;
+            }
+            
         }
 
         // GET: api/NoticiaDetalles/5
         [HttpGet("{id}")]
-        public ActionResult<NoticiaDetalle> GetNoticiaDetalle(string id)
+        public dynamic GetNoticiaDetalle(string id)
         {
-            var noticiaDetalle =  _context.NoticiaDetalle.Include(x=>x.IdNoticiaHeaderNavigation).ToList().Find(x=>x.IdNoticiaHeader==id);
-
-            if (noticiaDetalle == null)
+            dynamic jsonResponse = new JObject();
+            try
             {
-                return NotFound();
+                var noticiadetalle = _context.NoticiaDetalle.Include(x => x.IdNoticiaHeaderNavigation).ToList().Find(x => x.IdNoticiaHeader == id);
+
+                if (noticiadetalle == null)
+                {
+                    jsonResponse.code = 400;
+                    jsonResponse.data = null;
+                    jsonResponse.msj = "No se encontraron datos";
+                    return jsonResponse;
+                }
+                jsonResponse.code = 200;
+                jsonResponse.msj = "";
+                jsonResponse.data = JToken.FromObject(new NoticiaDetalle
+                {
+                    IdNoticiaHeader = noticiadetalle.IdNoticiaHeader,
+                    TxNoticia = noticiadetalle.TxNoticia,
+                    FhRegistro = noticiadetalle.FhRegistro,
+                    UsRegistro = noticiadetalle.UsRegistro
+                });
+                return jsonResponse;
+            }
+            catch (Exception e)
+            {
+                jsonResponse.code = 500;
+                jsonResponse.data = null;
+                jsonResponse.msj = e.Message;
+                return jsonResponse;
             }
 
-            return Ok(noticiaDetalle);
         }
 
         // PUT: api/NoticiaDetalles/5

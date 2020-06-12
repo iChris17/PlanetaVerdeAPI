@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using PLANETAVERDE_API.Models;
 
 namespace PLANETAVERDE_API.Controllers
@@ -22,34 +23,116 @@ namespace PLANETAVERDE_API.Controllers
 
         // GET: api/Categorias
         [HttpGet]
-        public async Task<IEnumerable<Categoria>> GetCategoria(string tipo)
+        public dynamic GetCategoria(string tipo)
         {
-            if (tipo.ToLower()=="articulo")
+            dynamic jsonResponse = new JObject();
+            try
             {
-                return  _context.Categoria.ToList().Where(n => n.TpCategoria == "ARTICULO");
+                JArray Jarray = new JArray();
+                jsonResponse.code = 200;
+                jsonResponse.msj = "";
+
+                List<Categoria> categoria=null;
+
+                if (tipo.ToLower() == "articulo")
+                {
+                    categoria= _context.Categoria.Where(n => n.TpCategoria == "ARTICULO").ToList();
+                }
+                else if (tipo.ToLower() == "noticia")
+                {
+                    categoria= _context.Categoria.Where(n => n.TpCategoria == "NOTICIA").ToList();
+                }
+                else if (tipo.ToLower() == "all")
+                {
+                    categoria= _context.Categoria.ToList();
+                }else
+                {
+
+                    jsonResponse.code = 400;
+                    jsonResponse.data = null;
+                    jsonResponse.msj = "No se encontraron registros";
+
+                    return jsonResponse;
+                }
+
+                for (int i = 0; i < categoria.Count; i++)
+                {
+                    Jarray.Add(JToken.FromObject(
+            new Categoria
+            {
+                IdCategoria = categoria[i].IdCategoria,
+                NbCategoria = categoria[i].NbCategoria,
+                DeCategoria = categoria[i].DeCategoria,
+                TpCategoria = categoria[i].TpCategoria,
+                FhRegistro = categoria[i].FhRegistro,
+                UsRegistro = categoria[i].UsRegistro,
+                NbCategoriaHeader = categoria[i].NbCategoriaHeader,
+            }));
+                }
+                jsonResponse.data = Jarray;
+
+                return jsonResponse;
             }
-            else if (tipo.ToLower() == "noticia")
+            catch (Exception e)
             {
-                return _context.Categoria.ToList().Where(n => n.TpCategoria == "NOTICIA");
-            }else if (tipo.ToLower() == "all")
-            {
-                return await _context.Categoria.ToListAsync();
+                jsonResponse.code = 500;
+                jsonResponse.data = null;
+                jsonResponse.msj = e.Message;
+                return jsonResponse;
+
             }
-            return null;
+           
         }
 
         // GET: api/Categorias/5
         [HttpGet("{id}")]
-        public  ActionResult<Categoria> GetCategoria(string id,int n)
+        public dynamic GetCategoria(string id,int n)
         {
-            var categoria = _context.Categoria.FromSqlRaw($"SP_GETCATEGORIA_BY_NBNOTICIA '{id}'");
-
-            if (categoria == null)
+            dynamic jsonResponse = new JObject();
+            try
             {
-                return NotFound();
-            }
+                var categoria = _context.Categoria.FromSqlRaw($"SP_GETCATEGORIA_BY_NBNOTICIA '{id}'").ToList();
+                
+                JArray Jarray = new JArray();
+                jsonResponse.code = 200;
+                jsonResponse.msj = "";
 
-            return Ok(categoria);
+                if (categoria.Count == 0)
+                {
+                    jsonResponse.code = 400;
+                    jsonResponse.data = null;
+                    jsonResponse.msj = "No se encontraron categorias";
+                    return jsonResponse;
+                }
+
+                for (int i = 0; i < categoria.Count; i++)
+                {
+                    Jarray.Add(JToken.FromObject(
+            new Categoria
+            {
+                IdCategoria = categoria[i].IdCategoria,
+                NbCategoria = categoria[i].NbCategoria,
+                DeCategoria = categoria[i].DeCategoria,
+                TpCategoria = categoria[i].TpCategoria,
+                FhRegistro = categoria[i].FhRegistro,
+                UsRegistro = categoria[i].UsRegistro,
+                NbCategoriaHeader = categoria[i].NbCategoriaHeader,
+            }));
+                }
+                jsonResponse.data = Jarray;
+
+
+                return jsonResponse;
+            }
+            catch (Exception e)
+            {
+                jsonResponse.code = 500;
+                jsonResponse.data = null;
+                jsonResponse.msj = e.Message;
+                return jsonResponse;
+
+            }
+            
         }
 
         // PUT: api/Categorias/5
