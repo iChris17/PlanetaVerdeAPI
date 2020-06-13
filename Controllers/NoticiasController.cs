@@ -106,37 +106,43 @@ namespace PLANETAVERDE_API.Controllers
            
         }
 
-        // PUT: api/Noticias/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutNoticia(string id, Noticia noticia)
+        [HttpGet("buscar/{id}")]
+        public dynamic GetNoticia(string id)
         {
-            if (id != noticia.IdNoticiaHeader)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(noticia).State = EntityState.Modified;
-
+            dynamic jsonResponse = new JObject();
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
+                var noticia = _context.Noticia.FromSqlRaw($"SP_BUSCARNOTICIA '{id}'").ToList();
+                JArray Jarray = new JArray();
+                for (int i = 0; i < noticia.Count; i++)
+                {
+                    Jarray.Add(JToken.FromObject(
+            new Noticia
             {
-                if (!NoticiaExists(id))
-                {
-                    return NotFound();
+                IdNoticiaHeader = noticia[i].IdNoticiaHeader,
+                NbNoticia = noticia[i].NbNoticia,
+                DeNoticia = noticia[i].DeNoticia,
+                VlImage = noticia[i].VlImage,
+                FhRegistro = noticia[i].FhRegistro,
+                UsRegistro = noticia[i].UsRegistro
+            }));
                 }
-                else
-                {
-                    throw;
-                }
+                jsonResponse.code = 200;
+                jsonResponse.msj = "";
+                jsonResponse.data = Jarray;
+
+                return jsonResponse;
+            }
+            catch (Exception e)
+            {
+                jsonResponse.code = 500;
+                jsonResponse.data = null;
+                jsonResponse.msj = e.Message;
+                return jsonResponse;
             }
 
-            return NoContent();
         }
+
 
         // POST: api/Noticias
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
@@ -164,21 +170,6 @@ namespace PLANETAVERDE_API.Controllers
             return CreatedAtAction("GetNoticia", new { id = noticia.IdNoticiaHeader }, noticia);
         }
 
-        // DELETE: api/Noticias/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Noticia>> DeleteNoticia(string id)
-        {
-            var noticia = await _context.Noticia.FindAsync(id);
-            if (noticia == null)
-            {
-                return NotFound();
-            }
-
-            _context.Noticia.Remove(noticia);
-            await _context.SaveChangesAsync();
-
-            return noticia;
-        }
 
         private bool NoticiaExists(string id)
         {

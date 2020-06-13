@@ -82,7 +82,8 @@ namespace PLANETAVERDE_API.Controllers
                     IdNoticiaHeader = noticiadetalle.IdNoticiaHeader,
                     TxNoticia = noticiadetalle.TxNoticia,
                     FhRegistro = noticiadetalle.FhRegistro,
-                    UsRegistro = noticiadetalle.UsRegistro
+                    UsRegistro = noticiadetalle.UsRegistro,
+                    IdNoticiaHeaderNavigation= noticiadetalle.IdNoticiaHeaderNavigation,
                 });
                 return jsonResponse;
             }
