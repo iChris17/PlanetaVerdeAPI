@@ -17,6 +17,7 @@ namespace PLANETAVERDE_API.Models
 
         public virtual DbSet<Categoria> Categoria { get; set; }
         public virtual DbSet<Noticia> Noticia { get; set; }
+        public virtual DbSet<NoticiaCategoria> NoticiaCategoria { get; set; }
         public virtual DbSet<NoticiaDetalle> NoticiaDetalle { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -94,8 +95,6 @@ namespace PLANETAVERDE_API.Models
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
 
-                entity.Property(e => e.IdCategoria).HasColumnName("ID_CATEGORIA");
-
                 entity.Property(e => e.NbNoticia)
                     .IsRequired()
                     .HasColumnName("NB_NOTICIA")
@@ -112,6 +111,47 @@ namespace PLANETAVERDE_API.Models
                     .IsRequired()
                     .HasColumnName("VL_IMAGE")
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<NoticiaCategoria>(entity =>
+            {
+                entity.HasKey(e => new { e.IdCategoria, e.IdNoticiaHeader });
+
+                entity.ToTable("NOTICIA_CATEGORIA");
+
+                entity.Property(e => e.IdCategoria).HasColumnName("ID_CATEGORIA");
+
+                entity.Property(e => e.IdNoticiaHeader)
+                    .HasColumnName("ID_NOTICIA_HEADER")
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FhRegistro)
+                    .HasColumnName("FH_REGISTRO")
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.InPrincipal)
+                    .HasColumnName("IN_PRINCIPAL")
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.UsRegistro)
+                    .HasColumnName("US_REGISTRO")
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.HasOne(d => d.IdCategoriaNavigation)
+                    .WithMany(p => p.NoticiaCategoria)
+                    .HasForeignKey(d => d.IdCategoria)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_NOTICIACAT_CATEGORIA");
+
+                entity.HasOne(d => d.IdNoticiaHeaderNavigation)
+                    .WithMany(p => p.NoticiaCategoria)
+                    .HasForeignKey(d => d.IdNoticiaHeader)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_NOTICIACAT_NOTICIA");
             });
 
             modelBuilder.Entity<NoticiaDetalle>(entity =>
