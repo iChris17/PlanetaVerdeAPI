@@ -19,6 +19,7 @@ namespace PLANETAVERDE_API.Models
         public virtual DbSet<Noticia> Noticia { get; set; }
         public virtual DbSet<NoticiaCategoria> NoticiaCategoria { get; set; }
         public virtual DbSet<NoticiaDetalle> NoticiaDetalle { get; set; }
+        public virtual DbSet<Usuarios> Usuarios { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -191,6 +192,37 @@ namespace PLANETAVERDE_API.Models
                     .HasForeignKey<NoticiaDetalle>(d => d.IdNoticiaHeader)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_NOTICIA_DETALLE");
+            });
+
+            modelBuilder.Entity<Usuarios>(entity =>
+            {
+                entity.HasKey(e => e.IdUsuario)
+                    .HasName("PK_USUARIO");
+
+                entity.ToTable("USUARIOS");
+
+                entity.HasIndex(e => e.NbUsuario)
+                    .HasName("UN_USUARIO")
+                    .IsUnique();
+
+                entity.Property(e => e.IdUsuario).HasColumnName("ID_USUARIO");
+
+                entity.Property(e => e.FhRegistro)
+                    .HasColumnName("FH_REGISTRO")
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.NbUsuario)
+                    .IsRequired()
+                    .HasColumnName("NB_USUARIO")
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.VlContraseña)
+                    .IsRequired()
+                    .HasColumnName("VL_CONTRASEÑA")
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
             });
 
             OnModelCreatingPartial(modelBuilder);

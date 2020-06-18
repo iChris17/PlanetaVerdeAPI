@@ -148,26 +148,42 @@ namespace PLANETAVERDE_API.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<Noticia>> PostNoticia(Noticia noticia)
+        public dynamic PostNoticia([FromBody]JObject ini)
         {
-            _context.Noticia.Add(noticia);
+            dynamic jsonResponse = new JObject();
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
+                var inicial = ini.Value<string>("ini");
+                var cant = ini.Value<string>("cant");
+                var cat = ini.Value<string>("cat");
+                var noticia = _context.Noticia.FromSqlRaw($"SP_GETNOTICIAS_PAGINATION '{cat}',{inicial},{cant}").ToList();
+                JArray Jarray = new JArray();
+                for (int i = 0; i < noticia.Count; i++)
+                {
+                    Jarray.Add(JToken.FromObject(
+            new Noticia
             {
-                if (NoticiaExists(noticia.IdNoticiaHeader))
-                {
-                    return Conflict();
+                IdNoticiaHeader = noticia[i].IdNoticiaHeader,
+                NbNoticia = noticia[i].NbNoticia,
+                DeNoticia = noticia[i].DeNoticia,
+                VlImage = noticia[i].VlImage,
+                FhRegistro = noticia[i].FhRegistro,
+                UsRegistro = noticia[i].UsRegistro
+            }));
                 }
-                else
-                {
-                    throw;
-                }
-            }
+                jsonResponse.code = 200;
+                jsonResponse.msj = "";
+                jsonResponse.data = Jarray;
 
-            return CreatedAtAction("GetNoticia", new { id = noticia.IdNoticiaHeader }, noticia);
+                return jsonResponse;
+            }
+            catch (Exception e)
+            {
+                jsonResponse.code = 500;
+                jsonResponse.data = null;
+                jsonResponse.msj = e.Message;
+                return jsonResponse;
+            }
         }
 
 
