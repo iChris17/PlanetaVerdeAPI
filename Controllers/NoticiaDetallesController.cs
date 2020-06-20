@@ -10,6 +10,7 @@ using PLANETAVERDE_API.Models;
 
 namespace PLANETAVERDE_API.Controllers
 {
+    [Produces("application/json")]
     [Route("api/[controller]")]
     [ApiController]
     public class NoticiaDetallesController : ControllerBase
@@ -21,52 +22,18 @@ namespace PLANETAVERDE_API.Controllers
           
         }
 
-        // GET: api/NoticiaDetalles
-        [HttpGet]
-        public dynamic GetNoticiaDetalle()
-        {
-            dynamic jsonResponse = new JObject();
-            try
-            {
-                var noticiadetalle= _context.NoticiaDetalle.ToList();
-                JArray Jarray = new JArray();
-
-                for (int i = 0; i < noticiadetalle.Count; i++)
-                {
-                    Jarray.Add(JToken.FromObject(
-            new NoticiaDetalle
-            {
-                IdNoticiaHeader = noticiadetalle[i].IdNoticiaHeader,
-                TxNoticia = noticiadetalle[i].TxNoticia,
-                FhRegistro = noticiadetalle[i].FhRegistro,
-                UsRegistro = noticiadetalle[i].UsRegistro
-            }));
-                }
-                jsonResponse.code = 200;
-                jsonResponse.msj = "";
-                jsonResponse.data = Jarray;
-
-                return jsonResponse;
-            }
-            catch (Exception e)
-            {
-
-                jsonResponse.code = 500;
-                jsonResponse.data = null;
-                jsonResponse.msj = e.Message;
-                return jsonResponse;
-            }
-            
-        }
-
+        /// <summary>
+        /// Obtener una noticia especifica.
+        /// </summary>
+        /// <param name="idNoticiaHeader"></param> 
         // GET: api/NoticiaDetalles/5
         [HttpGet("{id}")]
-        public dynamic GetNoticiaDetalle(string id)
+        public dynamic GetNoticiaDetalle(string idNoticiaHeader)
         {
             dynamic jsonResponse = new JObject();
             try
             {
-                var noticiadetalle = _context.NoticiaDetalle.Include(x => x.IdNoticiaHeaderNavigation).ToList().Find(x => x.IdNoticiaHeader == id);
+                var noticiadetalle = _context.NoticiaDetalle.Include(x => x.IdNoticiaHeaderNavigation).ToList().Find(x => x.IdNoticiaHeader == idNoticiaHeader);
 
                 if (noticiadetalle == null)
                 {
@@ -97,10 +64,31 @@ namespace PLANETAVERDE_API.Controllers
 
         }
 
-        // POST: api/NoticiaDetalles
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPost]
+        /// <summary>
+        /// Inserta una noticia y su detalle.
+        /// </summary>
+        /// <remarks>
+        /// registro de noticia:
+        ///
+        ///     POST /noticiadetalles
+        ///     {
+        ///	        "idNoticiaHeader":"Prueba",
+        ///	        "nbNoticia":"nombre",
+        ///	        "deNoticia":"desc",
+        ///	        "vlImage":"base64",
+        ///	        "usRegistro":"CACEVEDO",
+        ///	        "txNoticia":"noticia"
+        ///     }
+        ///
+        /// </remarks>
+        /// <response code="200">Se registro correctamente</response>
+        /// <response code="400">Ocurrio un error</response>  
+        /// /// <response code="500">Ocurrio un error de servidor</response>  
+
+    [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public dynamic PostNoticiaDetalle([FromBody]JObject Noticia)
         {
             dynamic jsonResponse = new JObject();
@@ -136,8 +124,33 @@ namespace PLANETAVERDE_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Agregar categoria a una noticia.
+        /// </summary>
+        /// <remarks>
+        /// Añadir categoria:
+        ///
+        ///     POST /noticiadetalles
+        ///     {
+        ///	        "accion":"ADD",
+        ///	        "idCategoria":0,
+        ///	        "idNoticiaHeader":"noticia-prueba",
+        ///	        "usRegistro":"CACEVEDO",
+        ///     }
+        ///
+        /// Eliminar Categoria:
+        ///
+        ///     POST /noticiadetalles
+        ///     {
+        ///	        "accion":"DELETE",
+        ///	        "idCategoria":0,
+        ///	        "idNoticiaHeader":"noticia-prueba",
+        ///	        "usRegistro":"CACEVEDO",
+        ///     }
+        ///
+        /// </remarks>
 
-        [HttpPost("/Categoria")]
+        [HttpPost("Categoria")]
         public dynamic NoticiaCategoria([FromBody]JObject Noti_Cat) {
             dynamic jsonResponse = new JObject();
             try
