@@ -27,7 +27,7 @@ namespace PLANETAVERDE_API.Controllers
         /// </summary>
         /// <param name="idNoticiaHeader"></param> 
         // GET: api/NoticiaDetalles/5
-        [HttpGet("{id}")]
+        [HttpGet("{idNoticiaHeader}")]
         public dynamic GetNoticiaDetalle(string idNoticiaHeader)
         {
             dynamic jsonResponse = new JObject();

@@ -26,7 +26,7 @@ namespace PLANETAVERDE_API.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-               optionsBuilder.UseSqlServer($"Server={Global.Connection.Host};Database={Global.Connection.Database};Trusted_Connection=True;User ID={Global.Connection.User};Password={Global.Connection.Password}");
+                optionsBuilder.UseSqlServer($"Server={Global.Connection.Host};Database={Global.Connection.Database};Trusted_Connection=True;User ID={Global.Connection.User};Password={Global.Connection.Password}");
             }
         }
 
@@ -132,6 +132,10 @@ namespace PLANETAVERDE_API.Models
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
 
+                entity.Property(e => e.InActivo)
+                    .HasColumnName("IN_ACTIVO")
+                    .HasDefaultValueSql("((1))");
+
                 entity.Property(e => e.InPrincipal)
                     .HasColumnName("IN_PRINCIPAL")
                     .HasDefaultValueSql("((0))");
@@ -181,11 +185,6 @@ namespace PLANETAVERDE_API.Models
                     .HasMaxLength(30)
                     .IsUnicode(false)
                     .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.VlImage)
-                    .IsRequired()
-                    .HasColumnName("VL_IMAGE")
-                    .IsUnicode(false);
 
                 entity.HasOne(d => d.IdNoticiaHeaderNavigation)
                     .WithOne(p => p.NoticiaDetalle)
