@@ -94,7 +94,7 @@ namespace PLANETAVERDE_API.Controllers
         /// Devuelve la lista de categorias que pertenecen a una noticia especifica.
         /// </summary>
         /// <param name="idNoticiaHeader"></param> 
-        [HttpGet("{id}")]
+        [HttpGet("{idNoticiaHeader}")]
         public dynamic GetCategoriaByNoticia(string idNoticiaHeader)
         {
             dynamic jsonResponse = new JObject();

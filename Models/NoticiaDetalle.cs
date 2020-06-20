@@ -7,7 +7,6 @@ namespace PLANETAVERDE_API.Models
     {
         public string IdNoticiaHeader { get; set; }
         public string TxNoticia { get; set; }
-        public string VlImage { get; set; }
         public DateTime? FhRegistro { get; set; }
         public string UsRegistro { get; set; }
 
