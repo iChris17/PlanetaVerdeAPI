@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace PLANETAVERDE_API.Models
 {
@@ -17,6 +19,8 @@ namespace PLANETAVERDE_API.Models
         public DateTime? FhRegistro { get; set; }
         public string UsRegistro { get; set; }
 
+        [JsonIgnore]
+        [IgnoreDataMember]
         public virtual NoticiaDetalle NoticiaDetalle { get; set; }
         public virtual ICollection<NoticiaCategoria> NoticiaCategoria { get; set; }
     }
