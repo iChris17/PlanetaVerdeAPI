@@ -10,6 +10,7 @@ using PLANETAVERDE_API.Models;
 
 namespace PLANETAVERDE_API.Controllers
 {
+    [Produces("application/json")]
     [Route("api/[controller]")]
     [ApiController]
     public class NoticiaDetallesController : ControllerBase
@@ -21,52 +22,18 @@ namespace PLANETAVERDE_API.Controllers
           
         }
 
-        // GET: api/NoticiaDetalles
-        [HttpGet]
-        public dynamic GetNoticiaDetalle()
-        {
-            dynamic jsonResponse = new JObject();
-            try
-            {
-                var noticiadetalle= _context.NoticiaDetalle.ToList();
-                JArray Jarray = new JArray();
-
-                for (int i = 0; i < noticiadetalle.Count; i++)
-                {
-                    Jarray.Add(JToken.FromObject(
-            new NoticiaDetalle
-            {
-                IdNoticiaHeader = noticiadetalle[i].IdNoticiaHeader,
-                TxNoticia = noticiadetalle[i].TxNoticia,
-                FhRegistro = noticiadetalle[i].FhRegistro,
-                UsRegistro = noticiadetalle[i].UsRegistro
-            }));
-                }
-                jsonResponse.code = 200;
-                jsonResponse.msj = "";
-                jsonResponse.data = Jarray;
-
-                return jsonResponse;
-            }
-            catch (Exception e)
-            {
-
-                jsonResponse.code = 500;
-                jsonResponse.data = null;
-                jsonResponse.msj = e.Message;
-                return jsonResponse;
-            }
-            
-        }
-
+        /// <summary>
+        /// Obtener una noticia especifica.
+        /// </summary>
+        /// <param name="idNoticiaHeader"></param> 
         // GET: api/NoticiaDetalles/5
         [HttpGet("{id}")]
-        public dynamic GetNoticiaDetalle(string id)
+        public dynamic GetNoticiaDetalle(string idNoticiaHeader)
         {
             dynamic jsonResponse = new JObject();
             try
             {
-                var noticiadetalle = _context.NoticiaDetalle.Include(x => x.IdNoticiaHeaderNavigation).ToList().Find(x => x.IdNoticiaHeader == id);
+                var noticiadetalle = _context.NoticiaDetalle.Include(x => x.IdNoticiaHeaderNavigation).ToList().Find(x => x.IdNoticiaHeader == idNoticiaHeader);
 
                 if (noticiadetalle == null)
                 {
@@ -97,80 +64,132 @@ namespace PLANETAVERDE_API.Controllers
 
         }
 
-        // PUT: api/NoticiaDetalles/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutNoticiaDetalle(string id, NoticiaDetalle noticiaDetalle)
+        /// <summary>
+        /// Inserta una noticia y su detalle.
+        /// </summary>
+        /// <remarks>
+        /// registro de noticia:
+        ///
+        ///     POST /noticiadetalles
+        ///     {
+        ///	        "idNoticiaHeader":"Prueba",
+        ///	        "nbNoticia":"nombre",
+        ///	        "deNoticia":"desc",
+        ///	        "vlImage":"base64",
+        ///	        "usRegistro":"CACEVEDO",
+        ///	        "txNoticia":"noticia"
+        ///     }
+        ///
+        /// </remarks>
+        /// <response code="200">Se registro correctamente</response>
+        /// <response code="400">Ocurrio un error</response>  
+        /// /// <response code="500">Ocurrio un error de servidor</response>  
+
+    [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public dynamic PostNoticiaDetalle([FromBody]JObject Noticia)
         {
-            if (id != noticiaDetalle.IdNoticiaHeader)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(noticiaDetalle).State = EntityState.Modified;
-
+            dynamic jsonResponse = new JObject();
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!NoticiaDetalleExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                var idNoticiaHeader = Noticia.Value<string>("idNoticiaHeader");
+                var nbNoticia = Noticia.Value<string>("nbNoticia");
+                var deNoticia = Noticia.Value<string>("deNoticia");
+                var vlImage = Noticia.Value<string>("vlImage");
+                var txNoticia = Noticia.Value<string>("txNoticia");
+                var usRegistro = Noticia.Value<string>("usRegistro");
 
-            return NoContent();
+                var respuestaDB=_context.Database.ExecuteSqlRaw($"SP_ADD_NOTICIA '{idNoticiaHeader}','{nbNoticia}','{deNoticia}','{vlImage}','{txNoticia}','{usRegistro}'");
+                if (respuestaDB==0)
+                {
+                    jsonResponse.code = 400;
+                    jsonResponse.msj = "No se inserto el registro";
+                    jsonResponse.data = null;
+                    return jsonResponse;
+                }
+                jsonResponse.code = 200;
+                jsonResponse.msj = "";
+                jsonResponse.data = null;
+
+                return jsonResponse;
+            }
+            catch (Exception e)
+            {
+                jsonResponse.code = 500;
+                jsonResponse.data = null;
+                jsonResponse.msj = e.Message;
+                return jsonResponse;
+            }
         }
 
-        // POST: api/NoticiaDetalles
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPost]
-        public async Task<ActionResult<NoticiaDetalle>> PostNoticiaDetalle(NoticiaDetalle noticiaDetalle)
-        {
-            _context.NoticiaDetalle.Add(noticiaDetalle);
+        /// <summary>
+        /// Agregar categoria a una noticia.
+        /// </summary>
+        /// <remarks>
+        /// Añadir categoria:
+        ///
+        ///     POST /noticiadetalles
+        ///     {
+        ///	        "accion":"ADD",
+        ///	        "idCategoria":0,
+        ///	        "idNoticiaHeader":"noticia-prueba",
+        ///	        "usRegistro":"CACEVEDO",
+        ///     }
+        ///
+        /// Eliminar Categoria:
+        ///
+        ///     POST /noticiadetalles
+        ///     {
+        ///	        "accion":"DELETE",
+        ///	        "idCategoria":0,
+        ///	        "idNoticiaHeader":"noticia-prueba",
+        ///	        "usRegistro":"CACEVEDO",
+        ///     }
+        ///
+        /// </remarks>
+
+        [HttpPost("Categoria")]
+        public dynamic NoticiaCategoria([FromBody]JObject Noti_Cat) {
+            dynamic jsonResponse = new JObject();
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (NoticiaDetalleExists(noticiaDetalle.IdNoticiaHeader))
+                var accion = Noti_Cat.Value<string>("accion");
+                var idCategoria = Noti_Cat.Value<int>("idCategoria");
+                var idNoticiaHeader = Noti_Cat.Value<string>("idNoticiaHeader");
+                var usRegistro = Noti_Cat.Value<string>("usRegistro");
+
+                if (accion!="ADD"||accion!="DELETE")
                 {
-                    return Conflict();
+                    jsonResponse.code = 400;
+                    jsonResponse.msj = "Error de parametros";
+                    jsonResponse.data = null;
+                    return jsonResponse;
                 }
-                else
+
+                var respuestaDB = _context.Database.ExecuteSqlRaw($"SP_ADD_CATEGORIA_NOTICIA '{accion}','{idCategoria}','{idNoticiaHeader}','{usRegistro}'");
+                if (respuestaDB == 0)
                 {
-                    throw;
+                    jsonResponse.code = 400;
+                    jsonResponse.msj = "No se inserto el registro";
+                    jsonResponse.data = null;
+                    return jsonResponse;
                 }
+                jsonResponse.code = 200;
+                jsonResponse.msj = "";
+                jsonResponse.data = null;
+
+                return jsonResponse;
             }
-
-            return CreatedAtAction("GetNoticiaDetalle", new { id = noticiaDetalle.IdNoticiaHeader }, noticiaDetalle);
-        }
-
-        // DELETE: api/NoticiaDetalles/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<NoticiaDetalle>> DeleteNoticiaDetalle(string id)
-        {
-            var noticiaDetalle = await _context.NoticiaDetalle.FindAsync(id);
-            if (noticiaDetalle == null)
+            catch (Exception e)
             {
-                return NotFound();
+                jsonResponse.code = 500;
+                jsonResponse.data = null;
+                jsonResponse.msj = e.Message;
+                return jsonResponse;
             }
-
-            _context.NoticiaDetalle.Remove(noticiaDetalle);
-            await _context.SaveChangesAsync();
-
-            return noticiaDetalle;
         }
-
         private bool NoticiaDetalleExists(string id)
         {
             return _context.NoticiaDetalle.Any(e => e.IdNoticiaHeader == id);
