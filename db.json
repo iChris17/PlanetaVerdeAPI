@@ -1,6 +1,6 @@
 {
-    "Host": ".\\",
+    "Host": "localhost",
     "Database": "PLANETAVERDEWEB",
-    "User": "sa",
-    "Password": "sistemas123"
+    "User": "SA",
+    "Password": "Sistemas123"
 } 
