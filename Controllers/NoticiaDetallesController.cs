@@ -147,6 +147,16 @@ namespace PLANETAVERDE_API.Controllers
         ///	        "idNoticiaHeader":"noticia-prueba",
         ///	        "usRegistro":"CACEVEDO",
         ///     }
+        ///     
+        /// Añadir default Categoria:
+        ///
+        ///     POST /noticiadetalles
+        ///     {
+        ///	        "accion":"ADD_DEFAULT",
+        ///	        "idCategoria":0,
+        ///	        "idNoticiaHeader":"noticia-prueba",
+        ///	        "usRegistro":"CACEVEDO",
+        ///     }
         ///
         /// </remarks>
 
@@ -159,14 +169,6 @@ namespace PLANETAVERDE_API.Controllers
                 var idCategoria = Noti_Cat.Value<int>("idCategoria");
                 var idNoticiaHeader = Noti_Cat.Value<string>("idNoticiaHeader");
                 var usRegistro = Noti_Cat.Value<string>("usRegistro");
-
-                if (accion!="ADD"||accion!="DELETE")
-                {
-                    jsonResponse.code = 400;
-                    jsonResponse.msj = "Error de parametros";
-                    jsonResponse.data = null;
-                    return jsonResponse;
-                }
 
                 var respuestaDB = _context.Database.ExecuteSqlRaw($"SP_ADD_CATEGORIA_NOTICIA '{accion}','{idCategoria}','{idNoticiaHeader}','{usRegistro}'");
                 if (respuestaDB == 0)

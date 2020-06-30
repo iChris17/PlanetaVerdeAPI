@@ -19,12 +19,12 @@
     },
     "PLANETAVERDE_API": {
       "commandName": "Project",
-      "launchBrowser": true,
-      "launchUrl": "weatherforecast",
+      "launchBrowser": false,
+      "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "http://10.168.0.2:5000"
+      "applicationUrl": "http://localhost:5000"
     }
   }
 }
