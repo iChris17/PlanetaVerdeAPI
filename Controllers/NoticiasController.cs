@@ -61,7 +61,7 @@ namespace PLANETAVERDE_API.Controllers
 
         // GET: api/Noticias/5
         [HttpGet("{id}")]
-        public dynamic GetNoticia(string id,int seccion=0)
+        public dynamic GetNoticia(string id,int seccion=0,string idnoticia="")
         {
             dynamic jsonResponse = new JObject();
             try
@@ -75,7 +75,7 @@ namespace PLANETAVERDE_API.Controllers
                     jsonResponse.msj = "No se encontraron datos";
                     return jsonResponse;
                 }
-                var noticia=_context.Noticia.FromSqlRaw($"SP_GETNOTICIA_BY_CATEGORIA '{id}','{seccion}'").ToList();
+                var noticia=_context.Noticia.FromSqlRaw($"SP_GETNOTICIA_BY_CATEGORIA '{id}','{seccion}','{idnoticia}'").ToList();
                 JArray Jarray = new JArray();
                 for (int i = 0; i < noticia.Count; i++)
                 {

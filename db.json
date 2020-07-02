@@ -1,6 +1,6 @@
 {
-    "Host": ".\\",
-    "Database": "PLANETAVERDEWEB",
-    "User": "sa",
-    "Password": "sistemas123"
+  "Host": "209.50.50.132",
+  "Database": "PLANETAVERDEWEB",
+  "User": "SA",
+  "Password": "AdminCEPV2020"
 } 

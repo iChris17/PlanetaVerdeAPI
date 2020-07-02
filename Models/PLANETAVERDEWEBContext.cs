@@ -26,7 +26,7 @@ namespace PLANETAVERDE_API.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer($"Server={Global.Connection.Host};Database={Global.Connection.Database};Trusted_Connection=True;User ID={Global.Connection.User};Password={Global.Connection.Password}");
+                optionsBuilder.UseSqlServer($"Server={Global.Connection.Host};Database={Global.Connection.Database};Integrated Security=false;User ID={Global.Connection.User};Password={Global.Connection.Password}");
             }
         }
 
